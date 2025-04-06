@@ -3,187 +3,238 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>page askbot</title>
+  <title>AskBot Chat</title>
   <style>
     :root {
       --bg-light: #f4f4f9;
       --bg-dark: #1e1e2e;
+      --bg-dark-alt: #2b2b3c;
       --text-light: #333;
       --text-dark: #f4f4f9;
       --primary: #3f51b5;
       --primary-dark: #303f9f;
+      --user-msg: #d1e8ff;
+      --bot-msg: #e6e6e6;
       --border-light: #ccc;
       --border-dark: #555;
-      --success: #4caf50;
-      --warning: #ff9800;
-      --error: #f44336;
     }
 
-    body {
+    html, body {
+      margin: 0;
+      padding: 0;
       font-family: "Arial", sans-serif;
       background: var(--bg-light);
       color: var(--text-light);
-      padding: 40px;
-      max-width: 700px;
-      margin: auto;
-      transition: all 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
     }
 
-    h1 {
-      text-align: center;
-      font-size: 2.5em;
-      margin-bottom: 20px;
+    .chat-container {
+      flex: 1;
+      padding: 12px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      box-sizing: border-box;
+      max-width: 800px;
+      margin: 0 auto;
+      width: 100%;
     }
 
-    .container {
-      text-align: center;
+    .message {
+      max-width: 80%;
+      padding: 12px 16px;
+      border-radius: 20px;
+      line-height: 1.4;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      animation: fadeIn 0.3s ease;
     }
 
-    .input-container {
+    .user {
+      align-self: flex-end;
+      background: var(--user-msg);
+    }
+
+    .bot {
+      align-self: flex-start;
+      background: var(--bot-msg);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .input-wrapper {
+      position: sticky;
+      bottom: 0;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      padding: 16px;
+      box-sizing: border-box;
+      background: var(--bg-light);
+    }
+
+    .input-bar {
       display: flex;
       gap: 10px;
-      justify-content: center;
-      margin-bottom: 20px;
+      width: 100%;
+      max-width: 800px;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(10px);
+      padding: 12px;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
     }
 
-    input[type="text"] {
+    .input-bar input {
+      flex: 1;
       padding: 10px;
       font-size: 1em;
-      width: 100%;
-      max-width: 400px;
       border: 1px solid var(--border-light);
-      border-radius: 5px;
-      background: white;
-      transition: all 0.3s ease;
+      border-radius: 12px;
+      background: transparent;
+      color: inherit;
     }
 
-    button {
-      padding: 10px 15px;
+    .input-bar button {
+      padding: 10px 16px;
       font-size: 1em;
       background-color: var(--primary);
       color: white;
       border: none;
-      border-radius: 5px;
+      border-radius: 12px;
       cursor: pointer;
-      transition: all 0.3s ease;
     }
 
-    button:hover {
+    .input-bar button:hover {
       background-color: var(--primary-dark);
     }
 
-    button:disabled {
-      background-color: gray;
-      cursor: not-allowed;
-    }
-
-    pre#response {
-      background: white;
-      padding: 10px;
-      border-radius: 5px;
-      box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
-      text-align: left;
-      min-height: 50px;
-      max-width: 100%;
-      overflow: auto;
-      word-wrap: break-word;
-      white-space: pre-wrap;
-    }
-
-    .health-status {
-      margin-top: 20px;
+    .typing {
+      display: inline-block;
+      font-weight: bold;
       font-size: 1.2em;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
+      animation: blink 1s infinite steps(1, start);
     }
 
-    .status-indicator {
-      width: 16px;
-      height: 16px;
-      border-radius: 50%;
-      flex-shrink: 0;
-      border: 1px solid var(--border-light);
-    }
-
-    .server-details {
-      margin-top: 10px;
-      padding: 10px;
-      background: white;
-      border-radius: 5px;
-      box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
-      text-align: left;
-      display: none;
-      overflow: hidden;
-      word-break: break-word;
-    }
-
-    .server-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-    }
-
-    .server-table th, .server-table td {
-      padding: 8px;
-      border: 1px solid var(--border-light);
-      text-align: left;
+    @keyframes blink {
+      0%, 100% { opacity: 0; }
+      50% { opacity: 1; }
     }
 
     @media (prefers-color-scheme: dark) {
       body {
-        background: var(--bg-dark);
+        background: var(--bg-dark-alt);
         color: var(--text-dark);
       }
 
-      input[type="text"], .server-details, pre#response {
-        background: #2e2e3e;
+      .chat-container {
+        background: var(--bg-dark-alt);
+      }
+
+      .user {
+        background: #446bff;
+        color: white;
+      }
+
+      .bot {
+        background: #2f2f3a;
+        color: white;
+      }
+
+      .input-bar {
+        background: rgba(30, 30, 46, 0.95);
+      }
+
+      .input-bar input {
+        background: transparent;
         color: white;
         border: 1px solid var(--border-dark);
       }
 
-      button {
+      .input-bar button {
         background-color: var(--primary-dark);
       }
 
-      button:hover {
+      .input-bar button:hover {
         background-color: var(--primary);
+      }
+
+      .input-wrapper {
+        background: var(--bg-dark-alt);
+      }
+    }
+
+    @media (max-width: 600px) {
+      .message {
+        font-size: 0.9em;
+        padding: 10px 14px;
+      }
+
+      .input-bar {
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .input-bar input,
+      .input-bar button {
+        font-size: 0.9em;
+        width: 100%;
       }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="input-container">
-      <input id="question" type="text" placeholder="Write your question..." />
-      <button id="askButton" onclick="ask()">Ask</button>
-    </div>
-    <pre id="response">Your answer will appear here ...</pre>
+  <div id="chat" class="chat-container">
+    <!-- Mensajes se insertan aquí -->
+  </div>
 
-    <div class="health-status">
-      <div id="statusIndicator" class="status-indicator" style="background: gray;"></div>
-      <span id="healthStatus">Checking server health...</span>
-    </div>
-    
-    <button id="toggleDetails" onclick="toggleDetails()" style="margin-top: 10px;">Details</button>
-    <div id="serverDetails" class="server-details">
-      <table class="server-table">
-        <tbody id="healthDetails"></tbody>
-      </table>
+  <div class="input-wrapper">
+    <div class="input-bar">
+      <input id="question" type="text" placeholder="Type your question about Promtior web site ..." onkeydown="handleKey(event)" />
+      <button onclick="ask()">Send</button>
     </div>
   </div>
 
   <script>
+    const chatContainer = document.getElementById("chat");
+
+    function appendMessage(content, sender = "bot") {
+      const msg = document.createElement("div");
+      msg.className = `message ${sender}`;
+      msg.textContent = content;
+      chatContainer.appendChild(msg);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    async function typeText(element, text) {
+      element.textContent = "";
+      for (let i = 0; i < text.length; i++) {
+        element.textContent += text[i];
+        await new Promise(r => setTimeout(r, 10));
+      }
+    }
+
     async function ask() {
-      const question = document.getElementById("question").value;
-      const responseBox = document.getElementById("response");
-      const askButton = document.getElementById("askButton");
+      const input = document.getElementById("question");
+      const question = input.value.trim();
+      if (!question) return;
 
-      if (!question.trim()) return;
+      appendMessage(question, "user");
+      input.value = "";
 
-      askButton.disabled = true;
-      responseBox.textContent = "Thinking... ⏳";
+      const thinkingMsg = document.createElement("div");
+      thinkingMsg.className = "message bot";
+      thinkingMsg.innerHTML = '<span class="typing"> ⏳ </span>';
+      chatContainer.appendChild(thinkingMsg);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
 
       try {
         const res = await fetch("/ask", {
@@ -191,61 +242,22 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ question }),
         });
-
         const data = await res.json();
-        responseBox.innerHTML = data.answer || "No answer.";
+        await typeText(thinkingMsg, data.answer || "No answer.");
       } catch (err) {
-        responseBox.textContent = "Error .. 😓";
-      } finally {
-        askButton.disabled = false;
+        thinkingMsg.textContent = "Error getting response 😓";
       }
     }
 
-    async function checkHealth() {
-      const healthStatus = document.getElementById("healthStatus");
-      const healthDetails = document.getElementById("healthDetails");
-      const statusIndicator = document.getElementById("statusIndicator");
-
-      healthStatus.textContent = "Checking server health...";
-      statusIndicator.style.background = "gray";
-
-      try {
-        const res = await fetch("/health");
-        const data = await res.json();
-
-        if (res.ok) {
-          healthStatus.textContent = "Server is healthy";
-          statusIndicator.style.background = "var(--success)";
-        } else {
-          healthStatus.textContent = "Server might be experiencing issues";
-          statusIndicator.style.background = "var(--warning)";
-        }
-
-        healthDetails.innerHTML = `
-          <tr><th>Status</th><td>${data.status}</td></tr>
-          <tr><th>CPU Usage</th><td>${data.resources.cpu_usage}</td></tr>
-          <tr><th>Memory Usage</th><td>${data.resources.memory_usage}</td></tr>
-          <tr><th>Model in Use</th><td>${data.environment.model_in_use}</td></tr>
-          <tr><th>Startup Time</th><td>${data.timestamps.startup_time}</td></tr>
-        `;
-
-      } catch (err) {
-        healthStatus.textContent = "Server is down";
-        statusIndicator.style.background = "var(--error)";
-        healthDetails.innerHTML = `<tr><td colspan="2">No details available.</td></tr>`;
+    function handleKey(e) {
+      if (e.key === "Enter") {
+        ask();
       }
     }
 
-  function toggleDetails() {
-    const details = document.getElementById("serverDetails");
-    if (details.style.display === "" || details.style.display === "none") {
-      details.style.display = "block";
-    } else {
-      details.style.display = "none";
-    }
-}
-
-    checkHealth();
+    window.onload = () => {
+      document.getElementById("question").focus();
+    };
   </script>
 </body>
 </html>
