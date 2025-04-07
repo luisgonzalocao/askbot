@@ -284,8 +284,35 @@
       chatContainer.scrollTop = chatContainer.scrollHeight;
     }
 
-    async function typeText(element, text) {
-      element.innerHTML = markdownToHtml(text);
+    async function typeFormattedMarkdown(element, markdown) {
+      const html = markdownToHtml(markdown);
+      const temp = document.createElement("div");
+      temp.innerHTML = html;
+
+      async function typeNode(srcNode, parent) {
+        if (srcNode.nodeType === Node.TEXT_NODE) {
+          let text = srcNode.textContent;
+          for (let char of text) {
+            parent.appendChild(document.createTextNode(char));
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+            await new Promise(r => setTimeout(r, 15));
+          }
+        } else {
+          const el = document.createElement(srcNode.nodeName);
+          for (let attr of srcNode.attributes) {
+            el.setAttribute(attr.name, attr.value);
+          }
+          parent.appendChild(el);
+          for (let child of srcNode.childNodes) {
+            await typeNode(child, el);
+          }
+        }
+      }
+
+      element.innerHTML = "";
+      for (let child of temp.childNodes) {
+        await typeNode(child, element);
+      }
     }
 
     async function ask() {
@@ -321,7 +348,7 @@
           }
 
           const data = await res.json();
-          await typeText(thinkingMsg, data.answer || "No answer.");
+          await typeFormattedMarkdown(thinkingMsg, data.answer || "No answer.");
           success = true;
         } catch (err) {
           attempt++;
@@ -340,7 +367,14 @@
       }
     }
 
-    appendMessage("Hello! 😁 I'm your assistant. Please write your question about Promtior (use another language if you'd like).");
+    // Saludo inicial animado con Markdown
+    (async () => {
+      const msg = document.createElement("div");
+      msg.className = "message bot";
+      chatContainer.appendChild(msg);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+      await typeFormattedMarkdown(msg, "Hello! 😁 I'm your assistant. Please write your question about *Promtior*.\n\nUse **any language** you prefer!");
+    })();
   </script>
 </body>
 </html>
