@@ -70,6 +70,18 @@
       background: var(--bot-msg);
     }
 
+    .bot-list-container {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .bot-list-item {
+      background-color: rgba(0, 0, 0, 0.05);
+      border-radius: 12px;
+      padding: 10px 14px;
+    }
+
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(5px); }
       to { opacity: 1; transform: translateY(0); }
@@ -162,6 +174,11 @@
         color: white;
       }
 
+      .bot-list-item {
+        background: rgba(255, 255, 255, 0.05);
+        color: white;
+      }
+
       .input-bar {
         background: rgba(30, 30, 46, 0.95);
       }
@@ -216,9 +233,7 @@
   </style>
 </head>
 <body>
-  <div id="chat" class="chat-container">
-    <!-- chat's messages  -->
-  </div>
+  <div id="chat" class="chat-container"></div>
 
   <div class="input-wrapper">
     <div class="input-bar">
@@ -230,20 +245,47 @@
   <script>
     const chatContainer = document.getElementById("chat");
 
+    function markdownToHtml(text) {
+      if (text.includes("*") || text.includes("\n")) {
+        const lines = text.split("\n").filter(Boolean);
+        const isList = lines.every(line =>
+          line.trim().startsWith("*") ||
+          line.trim().match(/^\d+\./) ||
+          line.trim().startsWith("-")
+        );
+
+        if (isList) {
+          const items = lines.map(line => {
+            const content = line.replace(/^(\*|-|\d+\.)\s*/, "")
+              .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+              .replace(/\*(.*?)\*/g, "<em>$1</em>");
+            return `<div class="bot-list-item">${content}</div>`;
+          });
+
+          return `<div class="bot-list-container">${items.join("")}</div>`;
+        }
+      }
+
+      return text
+        .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+        .replace(/\*(.*?)\*/g, "<em>$1</em>")
+        .replace(/\n/g, "<br>");
+    }
+
     function appendMessage(content, sender = "bot") {
       const msg = document.createElement("div");
       msg.className = `message ${sender}`;
-      msg.textContent = content;
+      if (sender === "bot") {
+        msg.innerHTML = markdownToHtml(content);
+      } else {
+        msg.textContent = content;
+      }
       chatContainer.appendChild(msg);
       chatContainer.scrollTop = chatContainer.scrollHeight;
     }
 
     async function typeText(element, text) {
-      element.textContent = "";
-      for (let i = 0; i < text.length; i++) {
-        element.textContent += text[i];
-        await new Promise(r => setTimeout(r, 10));
-      }
+      element.innerHTML = markdownToHtml(text);
     }
 
     async function ask() {
