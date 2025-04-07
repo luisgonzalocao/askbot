@@ -243,6 +243,7 @@
           body: JSON.stringify({ question }),
         });
         const data = await res.json();
+        console.log("DEBUG RESPONSE:", data);
         await typeText(thinkingMsg, data.answer || "No answer.");
       } catch (err) {
         thinkingMsg.textContent = "Error getting response 😓";
