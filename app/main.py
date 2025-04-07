@@ -168,7 +168,18 @@ async def ask_question(request: QuestionRequest = Body(...)):
 
     try:
         logger.info(f"Processing question: {request.question}")
-        response = await app.state.rag_chain.ainvoke(request.question)
+        logger.info(f"Defensive prompting + question: {request.question}")
+
+        topic = "Promtior"
+        defensive_prompt = (
+            f"You are a helpful assistant that only answers questions related to {topic}"
+            "If a user asks about anything unrelated, respond with: "
+            f"\"I'm sorry, I can only answer questions related to {topic}\"\n\n"
+            "Do not answer questions that are offensive, inappropriate, or unrelated to the subject. "
+            "If the question is unclear or ambiguous, politely ask the user to rephrase it.\n\n"
+            f"User question: {request.question}"
+        )
+        response = await app.state.rag_chain.ainvoke(defensive_prompt)
         return {"answer": response}
     except Exception:
         logger.exception(f"Error processing question: {str(e)}", exc_info=True)
