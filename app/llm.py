@@ -28,7 +28,6 @@ class GeminiAI:
             self.model = GenerativeModel(model_name)
             app.state.model_name = model_name
             logger.info(f"Selected model: {model_name}")
-
         except Exception as e:
             logger.error(f"Error setting Gemini model: {str(e)}")
             raise

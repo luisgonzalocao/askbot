@@ -1,12 +1,14 @@
 import os
 import sys
 import time
-from fastapi import FastAPI, HTTPException, Body
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
-from pydantic import BaseModel
-import resource
 import logging
+import resource
+
+from fastapi import FastAPI, HTTPException, Body
+from fastapi.responses import FileResponse
+
+from app.schemas import QuestionRequest
+from app.prompts import build_defensive_prompt
 
 logging.basicConfig(
     level=logging.INFO,
@@ -23,23 +25,12 @@ mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
 logger.info(f"Memory usage: {mem / 1024:.2f} MB")
 
 
-class QuestionRequest(BaseModel):
-    question: str
-
-
 app = FastAPI(
     title="Promtior RAG API",
     description="Retrieval-Augmented Generation API for Promtior content",
     version="1.0",
     docs_url="/api/docs",
     redoc_url="/api/redoc"
-)
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
 )
 
 
@@ -168,26 +159,18 @@ async def ask_question(request: QuestionRequest = Body(...)):
 
     try:
         logger.info(f"Processing question: {request.question}")
-        logger.info(f"Defensive prompting + question: {request.question}")
 
-        topic = "Promtior"
-        defensive_prompt = (
-            f"You are a helpful assistant that only answers questions related to {topic}"
-            "If a user asks about anything unrelated, respond with: "
-            f"\"I'm sorry, I can only answer questions related to {topic}\"\n\n"
-            "Do not answer questions that are offensive, inappropriate, or unrelated to the subject. "
-            "If the question is unclear or ambiguous, politely ask the user to rephrase it.\n\n"
-            f"User question: {request.question}"
-        )
-        response = await app.state.rag_chain.ainvoke(defensive_prompt)
+        prompt = build_defensive_prompt(request.question)
+        response = await app.state.rag_chain.ainvoke(prompt)
         return {"answer": response}
-    except Exception:
-        logger.exception(f"Error processing question: {str(e)}", exc_info=True)
-        logger.exception(f"Full error: {str(e)}", exc_info=True, stack_info=True)
+    except Exception as e:
+        logger.exception(f"Error processing question: {str(e)}",
+                         exc_info=True, stack_info=True)
         raise HTTPException(
             status_code=500,
             detail="Question processing failed. Please try again later."
         )
+
 
 @app.get("/")
 async def serve_index():

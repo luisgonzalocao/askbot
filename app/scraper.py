@@ -96,7 +96,7 @@ async def scrape_promptior():
         for url in urls:
             page = None
             try:
-                logger.info(f"Initializing scrapping: {url}")
+                logger.info(f"Initializing scraping: {url}")
                 start_time = time.time()
 
                 page = await context.new_page()

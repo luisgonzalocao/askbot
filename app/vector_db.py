@@ -15,7 +15,7 @@ if os.getenv("RAILWAY_ENVIRONMENT_NAME") is None:
 async def init_pinecone(enable_scraping: bool = False):
     try:
         pc = Pinecone(api_key=os.getenv("PINECONE_API_KEY"))
-        embeddings = HuggingFaceEmbeddings(model_name="./models/paraphrase-MiniLM-L3-v2")
+        embeddings = HuggingFaceEmbeddings(model_name="./app/embeddings/paraphrase-MiniLM-L3-v2")
         index_name = "promptior-knowledge"
 
         if enable_scraping:
@@ -56,7 +56,7 @@ async def init_pinecone(enable_scraping: bool = False):
         else:
             logger.info("Using existing index (without scraping)")
             if index_name not in pc.list_indexes().names():
-                raise ValueError("Index doesn't exists and scrapping is not enabled")
+                raise ValueError("Index doesn't exists and scraping is not enabled")
 
             return PineconeStore.from_existing_index(
                 index_name,
