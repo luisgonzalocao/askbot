@@ -1,6 +1,6 @@
 
 def build_defensive_prompt(question: str) -> str:
-    topic = "Promtior, Promtior company, Promtior services, what Promtior offers"
+    topic = "Information about Promtior, its website, the services it offers, and everything related to the company's website."
     return (
         f"You are a helpful assistant that only answers questions related to {topic}. "
         "If a user asks about anything unrelated, respond with: "
