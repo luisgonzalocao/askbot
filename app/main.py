@@ -24,7 +24,6 @@ if os.getenv("RAILWAY_ENVIRONMENT_NAME") is None:
 mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
 logger.info(f"Memory usage: {mem / 1024:.2f} MB")
 
-
 app = FastAPI(
     title="Promtior RAG API",
     description="Retrieval-Augmented Generation API for Promtior content",
@@ -174,4 +173,4 @@ async def ask_question(request: QuestionRequest = Body(...)):
 
 @app.get("/")
 async def serve_index():
-    return FileResponse("app/index.html")
+    return FileResponse("app/templates/index.html")
