@@ -174,4 +174,4 @@ async def ask_question(request: QuestionRequest = Body(...)):
 
 @app.get("/")
 async def serve_index():
-    return FileResponse("index.html")
+    return FileResponse("app/index.html")

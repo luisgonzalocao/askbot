@@ -36,6 +36,6 @@ def test_ask_question_with_model_failure():
 def test_serve_index():
     with patch("app.main.FileResponse", return_value="Mocked index.html") as mock_response:
         response = client.get("/")
-        mock_response.assert_called_once_with("index.html")
+        mock_response.assert_called_once_with("app/index.html")
         assert response.json() == "Mocked index.html"
 

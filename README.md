@@ -39,7 +39,7 @@ A Retrieval-Augmented Generation (RAG) chatbot that allows users to ask question
 |--------|----------------|-----------------------------------------|
 | GET    | `/health`      | Health check with service status        |
 | POST   | `/ask`         | Ask a question about the scraped site   |
-| GET    | `/`            | (Optional) Serves `index.html` frontend |
+| GET    | `/`            | Serves `app/index.html` |
 
 ---
 

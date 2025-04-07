@@ -19,6 +19,10 @@
       --border-dark: #555;
     }
 
+    * {
+      box-sizing: border-box;
+    }
+
     html, body {
       margin: 0;
       padding: 0;
@@ -30,6 +34,7 @@
       height: 100%;
       width: 100%;
       overflow: hidden;
+      max-width: 100%;
     }
 
     .chat-container {
@@ -91,6 +96,13 @@
       padding: 12px;
       border-radius: 16px;
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      flex-wrap: wrap;
+    }
+
+    .input-bar input,
+    .input-bar button {
+      box-sizing: border-box;
+      max-width: 100%;
     }
 
     .input-bar input {
@@ -111,6 +123,7 @@
       border: none;
       border-radius: 12px;
       cursor: pointer;
+      flex-shrink: 0;
     }
 
     .input-bar button:hover {
@@ -173,27 +186,38 @@
     }
 
     @media (max-width: 600px) {
+      .chat-container {
+        padding: 8px;
+      }
+
       .message {
         font-size: 0.9em;
         padding: 10px 14px;
       }
 
+      .input-wrapper {
+        padding: 12px;
+      }
+
       .input-bar {
         flex-direction: column;
-        gap: 8px;
+        gap: 10px;
+        padding: 10px;
+        border-radius: 12px;
       }
 
       .input-bar input,
       .input-bar button {
-        font-size: 0.9em;
         width: 100%;
+        font-size: 1em;
+        padding: 12px;
       }
     }
   </style>
 </head>
 <body>
   <div id="chat" class="chat-container">
-    <!-- Mensajes se insertan aquí -->
+    <!-- chat's messages  -->
   </div>
 
   <div class="input-wrapper">
@@ -243,7 +267,6 @@
           body: JSON.stringify({ question }),
         });
         const data = await res.json();
-        console.log("DEBUG RESPONSE:", data);
         await typeText(thinkingMsg, data.answer || "No answer.");
       } catch (err) {
         thinkingMsg.textContent = "Error getting response 😓";
