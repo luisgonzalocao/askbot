@@ -260,16 +260,35 @@
       chatContainer.appendChild(thinkingMsg);
       chatContainer.scrollTop = chatContainer.scrollHeight;
 
-      try {
-        const res = await fetch("/ask", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ question }),
-        });
-        const data = await res.json();
-        await typeText(thinkingMsg, data.answer || "No answer.");
-      } catch (err) {
-        thinkingMsg.textContent = "Error getting response 😓";
+      const maxRetries = 5;
+      let attempt = 0;
+      let success = false;
+
+      while (attempt < maxRetries && !success) {
+        try {
+          const res = await fetch("/ask", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ question }),
+          });
+
+          if (!res.ok) {
+            attempt++;
+            await new Promise(r => setTimeout(r, 500 * attempt));
+            continue;
+          }
+
+          const data = await res.json();
+          await typeText(thinkingMsg, data.answer || "No answer.");
+          success = true;
+        } catch (err) {
+          attempt++;
+          await new Promise(r => setTimeout(r, 500 * attempt));
+        }
+      }
+
+      if (!success) {
+        thinkingMsg.textContent = "⚠️ Unable to get a response after several tries.";
       }
     }
 
