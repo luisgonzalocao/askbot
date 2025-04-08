@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AskBot Chat</title>
@@ -367,13 +368,12 @@
       }
     }
 
-    // Saludo inicial animado con Markdown
     (async () => {
       const msg = document.createElement("div");
       msg.className = "message bot";
       chatContainer.appendChild(msg);
       chatContainer.scrollTop = chatContainer.scrollHeight;
-      await typeFormattedMarkdown(msg, "Hello! 😁 I'm your assistant. Please write your question about *Promtior*.\n\nUse **any language** you prefer!");
+      await typeFormattedMarkdown(msg, "Hello! 😁 I'm your assistant. Please write your question about **Promtior**.\n\nUse any language you prefer!");
     })();
   </script>
 </body>

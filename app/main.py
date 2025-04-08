@@ -6,6 +6,7 @@ import resource
 
 from fastapi import FastAPI, HTTPException, Body
 from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
 from app.schemas import QuestionRequest
 from app.prompts import build_defensive_prompt
@@ -31,6 +32,8 @@ app = FastAPI(
     docs_url="/api/docs",
     redoc_url="/api/redoc"
 )
+
+app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
 
 async def initialize_rag():
@@ -171,6 +174,11 @@ async def ask_question(request: QuestionRequest = Body(...)):
         )
 
 
-@app.get("/")
+@app.get("/", include_in_schema=False)
 async def serve_index():
     return FileResponse("app/templates/index.html")
+
+
+@app.get("/favicon.ico", include_in_schema=False)
+async def favicon():
+    return FileResponse("app/static/favicon.ico")
