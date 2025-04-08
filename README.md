@@ -1,6 +1,7 @@
 # 🧠 Promtior RAG Chatbot
 
-A Retrieval-Augmented Generation (RAG) chatbot that allows users to ask questions about content extracted from a specific URL. This project is designed to provide intelligent responses about Promtior's website by combining scraping, embeddings, and LLM-powered generation.
+A Retrieval-Augmented Generation (RAG) chatbot that allows users to ask questions about content extracted from a specific URL.
+This project is designed to provide intelligent responses about Promtior's website by combining scraping, embeddings, and LLM-powered generation.
 
 ---
 
